@@ -1,6 +1,3 @@
-
-
-
 resource "google_compute_interconnect_attachment" "bms_attach_1" {
   admin_enabled            = true
   bandwidth                = "BPS_1G"
@@ -40,18 +37,4 @@ resource "google_compute_firewall" "bms_firewall" {
   project                 = "{PROJECT_ID}"
   source_ranges           = ["{IP_RANGES}"]
   target_service_accounts = ["{PROJECT_NUMBER}-compute@developer.gserviceaccount.com"]
-}
-
-
-resource "google_compute_firewall" "bms_jump_firewall" {
-  allow {
-    protocol = "all"
-  }
-
-  direction     = "INGRESS"
-  name          = "bms-jump-firewall"
-  network       = "https://www.googleapis.com/compute/v1/projects/{PROJECT_ID}/global/networks/network-bms-vpc"
-  priority      = 1000
-  project       = "{PROJECT_ID}"
-  source_ranges = ["{IP_RANGES}"]
 }
