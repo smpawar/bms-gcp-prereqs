@@ -1,0 +1,57 @@
+
+
+
+resource "google_compute_interconnect_attachment" "bms_attach_1" {
+  admin_enabled            = true
+  bandwidth                = "BPS_1G"
+  edge_availability_domain = "AVAILABILITY_DOMAIN_1"
+  encryption               = "NONE"
+  mtu                      = "1440"
+  name                     = "bms-attach-1"
+  project                  = "{PROJECT_ID}"
+  region                   = "us-east4"
+  router                   = "https://www.googleapis.com/compute/v1/projects/{PROJECT_ID}/regions/us-east4/routers/bms-router"
+  type                     = "PARTNER"
+  vlan_tag8021q            = 102
+}
+
+resource "google_compute_router" "bms_router" {
+  bgp {
+    advertise_mode     = "DEFAULT"
+    asn                = 16550
+    keepalive_interval = 20
+  }
+
+  name    = "bms-router"
+  network = "https://www.googleapis.com/compute/v1/projects/{PROJECT_ID}/global/networks/network-bms-vpc"
+  project = "{PROJECT_ID}"
+  region  = "us-east4"
+}
+
+resource "google_compute_firewall" "bms_firewall" {
+  allow {
+    protocol = "all"
+  }
+
+  direction               = "INGRESS"
+  name                    = "bms-firewall"
+  network                 = "https://www.googleapis.com/compute/v1/projects/{PROJECT_ID}/global/networks/default"
+  priority                = 1000
+  project                 = "{PROJECT_ID}"
+  source_ranges           = ["10.10.10.10/20"]
+  target_service_accounts = ["{PROJECT_NUMBER}-compute@developer.gserviceaccount.com"]
+}
+
+
+resource "google_compute_firewall" "bms_jump_firewall" {
+  allow {
+    protocol = "all"
+  }
+
+  direction     = "INGRESS"
+  name          = "bms-jump-firewall"
+  network       = "https://www.googleapis.com/compute/v1/projects/{PROJECT_ID}/global/networks/network-bms-vpc"
+  priority      = 1000
+  project       = "{PROJECT_ID}"
+  source_ranges = ["10.10.10.10/24"]
+}
